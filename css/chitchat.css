@@ -1,4 +1,8 @@
 .maintitle {
 	font-weight: bold;
+}
 	
+/* --------------- ChatBox ------------- */
+.cc-line {
+  color: red;
 }
