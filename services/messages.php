@@ -1,17 +1,27 @@
 <?php
 
-$method = $_SERVER['REQUEST_METHOD'];
+require_once ( dirname(__FILE__) . "/../commons.inc" );
 
-syslog(LOG_INFO, "Using method: " . $method);
-syslog(LOG_INFO, "Received new message");
+$method = $_SERVER['REQUEST_METHOD'];
 
 if ( $method == "PUT") {
 	$inputJSON = file_get_contents('php://input');
 	$message= json_decode( $inputJSON, TRUE );
 	
-	syslog(LOG_INFO, "subject: " . $message["subject"]);
-	syslog(LOG_INFO, "destination: " . $message["destination"]);
+	logMessage("Method Put ". $message, "INFO");
+}
+elseif($method == "GET"){
+	header('content-type: application/json');
+	$arr=array('subject' => 'Hello this is otsakir', 'from' => 'otsakir',  'subject1' => 'Hello this is Irene',  'from' => 'irene');
+	$message=json_encode($arr);
+	
+	logMessage("Method GET ".$message, "INFO");
+}
+else{
+	http_response_code(405);
 }
 
+
+	
 
 ?>
