@@ -6,20 +6,28 @@
 	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
 
 </head>
-<body ng-app="ChitChat">
-	<h1 class="maintitle">Hello world!</h1>
-	<div ng-controller="ChatBoxCtrl">
-		<form novalidate>
-			<div class="form-group">
-				<ul>
-					<li class="cc-line" ng-repeat="line in lines">{{line}}</li>
-				</ul>
-			</div>
-			<div class="form-group">
-				<input ng-model="editedLine"><button ng-click="sendButtonClicked(editedLine)">Send</button>
-			</div>
-		</form>
+<body ng-app="bMale">
+	<div class="container">
+		<h1>Create new message</h1>
+		<div ng-controller="NewMessageCtrl">
+			<form novalidate>
+				<div class="form-group">
+					<label>To</label>
+					<input ng-model="message.to" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Subject</label>
+					<input ng-model="message.subject" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Message body</label>
+					<textarea ng-model="message.body" class="form-control"></textarea>
+				</div>
+				<button ng-click="sendButtonClicked(message)" class="btn btn-primary">Send</button>
+			</form>
+		</div>
 	</div>
+	
 	<script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
 	<script type="text/javascript" src="bower_components/angular/angular.js"></script>
 	<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script> 

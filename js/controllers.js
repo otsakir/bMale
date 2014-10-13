@@ -1,10 +1,8 @@
-angular.module("ChitChat").controller("ChatBoxCtrl", function ChatBoxCtrl($scope) {
-	$scope.lines = ["testline"];
-
-	function sendButtonClicked(message) {
-		// do some actual sending here
-		$scope.lines.push(message);
+angular.module("bMale").controller("NewMessageCtrl", function ChatBoxCtrl($scope) {
+	$scope.message = {};
+	
+	$scope.sendButtonClicked = function (message) {
+		console.log("Sending message");
 	}
-	$scope.sendButtonClicked = sendButtonClicked;
 });
 

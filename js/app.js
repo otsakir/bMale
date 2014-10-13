@@ -1,1 +1,1 @@
-angular.module("ChitChat",[]);
+angular.module("bMale",[]);
