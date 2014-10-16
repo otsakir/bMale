@@ -1,0 +1,18 @@
+<h1>Create new message</h1>
+<div ng-controller="composeCtrl">
+	<form novalidate>
+		<div class="form-group">
+			<label>To</label>
+			<input ng-model="message.to" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>Subject</label>
+			<input ng-model="message.subject" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>Message body</label>
+			<textarea ng-model="message.body" class="form-control"></textarea>
+		</div>
+		<button ng-click="sendButtonClicked(message)" class="btn btn-primary">Send</button>
+	</form>
+</div>
