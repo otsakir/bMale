@@ -6,5 +6,9 @@ angular.module("bMale").config([ '$routeProvider',  function($routeProvider) {
 		templateUrl : 'templates/compose.html',
 		controller : 'composeCtrl'
 	})
+	.when('/signin', {
+		templateUrl : 'templates/signin.html',
+		controller : 'signinCtrl'
+	});
 	
 }]);

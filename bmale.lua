@@ -74,9 +74,9 @@ end
 function signin(web)
 	local data = cjson.decode(web.POST.post_data)
 	if bmale_auth.authenticateUser(data.username, data.password) then
-		return cjson.encode({status = "ok", payload = {accepted=true}})
+		return cjson.encode({status = "ok"})
 	else
-		return cjson.encode({status = "ok", payload = {accepted=false}})
+		return cjson.encode({status = "error"})
 	end
 end
 

@@ -18,3 +18,20 @@ angular.module("bMale").controller("composeCtrl", function composeCtrl($scope,$h
 	}
 });
 
+angular.module("bMale").controller("signinCtrl", function signinCtrl($scope,$http) {
+	$scope.signinForm = {username:"", password:""};
+	
+	$scope.submitSigninForm = function (form) {
+		$http({url:"bmale.lua/signin", method:"POST", data:form})
+		.success(function (data) {
+			if (data.status == "ok")
+				console.log("authentication successfull");
+			else
+				console.log("authentication failed");
+		})
+		.error(function () {
+				console.log("HTTP error");
+		});
+	}
+});
+
