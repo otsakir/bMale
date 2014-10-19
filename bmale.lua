@@ -4,12 +4,14 @@ local orbit = require "orbit"
 local cjson = require "cjson"
 local luchia = require "luchia" -- couchdb client
 local stdstring = require "std.string"
+local bmale_auth = require "bmale_auth"
 
 module("bmale", package.seeall, orbit.new)
 
 -- controller functions
 
 function get(web)
+	-- bmale_auth.createUser("otsakir","diskolo")
 	for k,v in pairs(web.GET) do
 		print (k.." = "..tostring(v))
 	end
@@ -29,6 +31,7 @@ end
 function say(web, name)
 	return render_say(web, name)
 end
+
 
 function send(web)
 	print ("sending mail")
@@ -52,11 +55,32 @@ function send(web)
 		local response = {status = "ok", payload = {id = couchResp.id}}
 		local jsonResponse = cjson.encode(response)
 		return jsonResponse
-		-- print( stdstring.prettytostring(couchResp) )
 	else
 		print("error creating document")
 	end	
 end
+
+function createUser(web)
+	local userData = cjson.decode(web.POST.post_data)
+	local user = cjson.decode(web.POST.post_data)
+	local status, userId = bmale_auth.createUser( userData.username, userData.password, userData.profile )
+	if status then
+		return cjson.encode({status = "ok", payload = {id=userId}})
+	else
+		return cjson.encode({status = "error", message = "cannot create user"})
+	end
+end
+
+function signin(web)
+	local data = cjson.decode(web.POST.post_data)
+	if bmale_auth.authenticateUser(data.username, data.password) then
+		return cjson.encode({status = "ok", payload = {accepted=true}})
+	else
+		return cjson.encode({status = "ok", payload = {accepted=false}})
+	end
+end
+
+
 
 -- Builds the application's dispatch table, you can
 -- pass multiple patterns, and any captures get passed to
@@ -65,7 +89,11 @@ end
 bmale:dispatch_get(get, "/get")
 bmale:dispatch_post(post, "/post")
 bmale:dispatch_post(rawpost, "/rawpost")
+
 bmale:dispatch_post(send, "/send")
+bmale:dispatch_put(createUser, "/users")
+bmale:dispatch_post(signin, "/signin")
+
 -- bmale:dispatch_static("index.html","/")
 
 -- hello:dispatch_get(say, "/say/(%a+)")
