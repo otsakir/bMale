@@ -5,6 +5,7 @@ local cjson = require "cjson"
 local luchia = require "luchia" -- couchdb client
 local stdstring = require "std.string"
 local bmale_auth = require "bmale_auth"
+local uuid = require "uuid"
 
 module("bmale", package.seeall, orbit.new)
 
@@ -74,6 +75,7 @@ end
 function signin(web)
 	local data = cjson.decode(web.POST.post_data)
 	if bmale_auth.authenticateUser(data.username, data.password) then
+		web:set_cookie("bmaleticket",uuid())
 		return cjson.encode({status = "ok"})
 	else
 		return cjson.encode({status = "error"})
