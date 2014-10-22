@@ -1,3 +1,9 @@
+
+angular.module("bMale").controller("mailboxCtrl", function mailboxCtrl($scope,$state) {
+	$scope.state = $state;
+	//console.log($state);
+});
+
 angular.module("bMale").controller("composeCtrl", function composeCtrl($scope,$http) {
 	$scope.message = {to:'', message:{subject:'', body:''}};
 	
@@ -17,6 +23,7 @@ angular.module("bMale").controller("composeCtrl", function composeCtrl($scope,$h
 		
 	}
 });
+
 
 angular.module("bMale").controller("signinCtrl", function signinCtrl($scope,$http) {
 	$scope.signinForm = {username:"", password:""};

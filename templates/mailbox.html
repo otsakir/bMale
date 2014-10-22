@@ -1,0 +1,33 @@
+<div class="mailboxView">
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+	  <div class="container">
+		  <ul class="nav navbar-nav navbar-right">
+			  <li><a ui-sref="signin">Sign in</a></li>
+			  <li><a ui-sref="signin">Sign out</a></li>
+		  </ul>
+	  </div>
+	</nav>
+	
+	<h2>Mailbox view</h2>
+	<div class="row">
+		<div class="col-md-2">
+			<div class="form-group">
+				<button class="btn btn-default btn-block" ui-sref="mailbox.compose">Compose</button>
+			</div>
+			<ul class="nav nav-pills nav-stacked">
+				<li ng-class='{"active":state.current.name=="mailbox.inbox"}'>
+					<a ui-sref="mailbox.inbox">Inbox</a>
+				</li>
+				<li ng-class='{"active":state.current.name=="mailbox.sent"}'>
+					<a ui-sref="mailbox.sent">Sent</a>
+				</li>
+				<li ng-class='{"active":state.current.name=="mailbox.drafts"}'>
+					<a ui-sref="mailbox.drafts">Drafts</a>
+				</li>
+			</ul>
+		</div>
+		<div class="col-md-10">
+			<div ui-view></div>
+		</div>
+	</div>
+</div>
