@@ -1,0 +1,27 @@
+*** Compose message service
+
+The client submits messages like this:
+
+PUT /outbox
+{
+	to: ['dest1', 'dest2'],
+	message: {
+		subject: 'Greetings',
+		body: 'Hello there. This is a greetings email'
+	}
+}
+
+The agent processes the message. For each destination it wraps the message in a package like the following:
+
+{
+	destination: 'dest1',
+	message: {
+		subject: 'Greetings',
+		body: 'Hello there. This is a greetings email'
+	}
+}
+
+and places this bundle in the outboxQueue couch db.
+
+Also, the agent upon receiving a valid message it returns the couch doc it to the client.
+
