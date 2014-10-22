@@ -75,13 +75,33 @@ end
 function signin(web)
 	local data = cjson.decode(web.POST.post_data)
 	if bmale_auth.authenticateUser(data.username, data.password) then
-		web:set_cookie("bmaleticket",uuid())
-		return cjson.encode({status = "ok"})
-	else
-		return cjson.encode({status = "error"})
+		local newUuid = uuid()
+		web:set_cookie("bmaleticket",newUuid)
+		local docHandler = luchia.document:new("sessions")
+		local couchResp = docHandler:create({},newUuid)
+		
+		if docHandler:response_ok(couchResp) then
+			print("created new session for " .. data.username.." - "..newUuid) 
+			-- print("document created successfully: "..tostring(couchResp.id))
+			return cjson.encode({status = "ok"})
+		else
+			-- log the error 
+			print("error creating document")
+			return cjson.encode({status = "error", message = "internal server error"})
+		end
+	else	
+		print("Error authenticating " .. data.username)
+		return cjson.encode({status = "error", message = "authentication error"})
 	end
 end
 
+function testrequest(web)
+	local getCookie = stdstring.prettytostring(web.vars.HTTP_COOKIE)
+	
+	print (getCookie)
+	
+	return cjson.encode({status = "ok"})
+end
 
 
 -- Builds the application's dispatch table, you can
@@ -95,6 +115,7 @@ bmale:dispatch_post(rawpost, "/rawpost")
 bmale:dispatch_post(send, "/send")
 bmale:dispatch_put(createUser, "/users")
 bmale:dispatch_post(signin, "/signin")
+bmale:dispatch_get(testrequest, "/test")
 
 -- bmale:dispatch_static("index.html","/")
 
