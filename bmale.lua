@@ -6,6 +6,7 @@ local luchia = require "luchia" -- couchdb client
 local stdstring = require "std.string"
 local bmale_auth = require "bmale_auth"
 local uuid = require "uuid"
+local  bmale_utils = require "bmale_utils"
 
 module("bmale", package.seeall, orbit.new)
 
@@ -78,7 +79,7 @@ function signin(web)
 		local newUuid = uuid()
 		web:set_cookie("bmaleticket",newUuid)
 		local docHandler = luchia.document:new("sessions")
-		local couchResp = docHandler:create({},newUuid)
+		local couchResp = docHandler:create({username = data.username},newUuid)
 		
 		if docHandler:response_ok(couchResp) then
 			print("created new session for " .. data.username.." - "..newUuid) 
@@ -95,12 +96,18 @@ function signin(web)
 	end
 end
 
-function testrequest(web)
-	local getCookie = stdstring.prettytostring(web.vars.HTTP_COOKIE)
-	
-	print (getCookie)
-	
-	return cjson.encode({status = "ok"})
+function signout(web)
+		local webCookie = bmale_utils.extractTicketFromHeader( web.vars.HTTP_COOKIE)
+		local docHandler = luchia.document:new("sessions")
+		local session = docHandler:retrieve(webCookie)
+		
+		if session then
+			print( stdstring.prettytostring(session))
+			docHandler:delete(session._id, session._rev)
+			return cjson.encode({status = "ok"})
+		else
+			return cjson.encode({status = "error"})
+		end
 end
 
 
@@ -115,7 +122,7 @@ bmale:dispatch_post(rawpost, "/rawpost")
 bmale:dispatch_post(send, "/send")
 bmale:dispatch_put(createUser, "/users")
 bmale:dispatch_post(signin, "/signin")
-bmale:dispatch_get(testrequest, "/test")
+bmale:dispatch_get(signout, "/signout")
 
 -- bmale:dispatch_static("index.html","/")
 

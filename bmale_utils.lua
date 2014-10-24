@@ -4,8 +4,7 @@ local module = {}
 -- header can be 'web.vars.HTTP_COOKIE'
 -- returns the cookie's content or nil if no such cookie is found
 function module.extractTicketFromHeader( header )
-	return header:match("bmaleticket=([^;]+);")
+	return header:match("bmaleticket=([^;]+);?")
 end
-
 
 return module
