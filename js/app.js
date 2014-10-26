@@ -7,7 +7,6 @@ angular.module("bMale")
 
 	$stateProvider
 		.state("desktop", {
-			url:"",
 			templateUrl:"templates/desktop.html",
 			controller:"desktopCtrl"
 		})
