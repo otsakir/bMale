@@ -30,6 +30,24 @@ function module.authenticateUser(username, password)
 	end
 end
 
+-- Returns the user object for the user currently sign-in based on his ticket. If no user is signed it returns null
+function module.getLoggedUser(ticket)
+	local sessiondb = luchia.document:new("sessions")
+	local session = sessiondb:retrieve(ticket)
+	-- if there is a session retrieve the user owning it
+	if session then
+		local userdb = luchia.document:new("users")
+		local user = userdb:retrieve(session.username)
+		if not user then
+			return nil, "Internal Error. User in session does not exist"
+		else
+			return true, user
+		end
+	else
+		return false, "User not logged in"
+	end
+end
+
 
 
 return module

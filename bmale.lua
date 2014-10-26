@@ -10,11 +10,24 @@ local  bmale_utils = require "bmale_utils"
 
 module("bmale", package.seeall, orbit.new)
 
--- controller functions
+-- *** Controller Utility functions ***
+
+-- prepares a response for unauthorized access
+function unauthorized(web)
+	web.status = "401 Unauthorized"
+	return cjson.encode({status = "error", message = "Unauthorized"})
+end
+
+-- *** Controller HTTP services ***
 
 function send(web)
-	print ("sending mail")
-	print (web.POST.post_data)
+	-- check authenticated
+	local status,user = bmale_auth.getLoggedUser( bmale_utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
+	if status == false then 
+		return unauthorized(web)	
+	elseif status == nil then
+		return orbit.server_error(web, "")
+	end
 	
 	-- decode json message
 	decodedMessage = cjson.decode(web.POST.post_data)
@@ -22,6 +35,7 @@ function send(web)
 
 	-- prepare an outgoing message for each destination
 	local outgoingMessage = { 
+		from = user.username,
 		destination = decodedMessage.to,
 		message = decodedMessage.message
 	}
@@ -83,7 +97,7 @@ function signout(web)
 			local session = docHandler:retrieve(webCookie)
 			
 			if session then
-				print( stdstring.prettytostring(session))
+				print( "logging out session ".. stdstring.prettytostring(session))
 				docHandler:delete(session._id, session._rev)
 				return cjson.encode({status = "ok"})
 			else
