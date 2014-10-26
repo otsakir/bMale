@@ -1,4 +1,4 @@
-angular.module("bMale",['ui.router']);
+angular.module("bMale",['ui.router','ngCookies']);
 
 angular.module("bMale")
 .config( function($stateProvider, $urlRouterProvider) {
@@ -6,30 +6,35 @@ angular.module("bMale")
 	$urlRouterProvider.otherwise("/mailbox");
 
 	$stateProvider
+		.state("desktop", {
+			url:"",
+			templateUrl:"templates/desktop.html",
+			controller:"desktopCtrl"
+		})
 		.state("signin", {
 			url:"/signin",
 			templateUrl:"templates/signin.html",
 			controller:"signinCtrl"
 		})
-		.state("mailbox", {
+		.state("desktop.mailbox", {
 			url:"/mailbox",
 			templateUrl:"templates/mailbox.html",
 			controller:"mailboxCtrl"
 		})
-		.state("mailbox.compose", {
+		.state("desktop.mailbox.compose", {
 			url:"/compose",
 			templateUrl:"templates/mailbox.compose.html",
 			controller:"composeCtrl"
 		})
-		.state("mailbox.inbox", {
+		.state("desktop.mailbox.inbox", {
 			url:"/inbox",
 			templateUrl:"templates/mailbox.inbox.html"
 		})	
-		.state("mailbox.sent", {
+		.state("desktop.mailbox.sent", {
 			url:"/sent",
 			templateUrl:"templates/mailbox.sent.html"
 		})
-		.state("mailbox.drafts", {
+		.state("desktop.mailbox.drafts", {
 			url:"/drafts",
 			templateUrl:"templates/mailbox.drafts.html"
 		});				

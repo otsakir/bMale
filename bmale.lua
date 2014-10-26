@@ -12,29 +12,6 @@ module("bmale", package.seeall, orbit.new)
 
 -- controller functions
 
-function get(web)
-	-- bmale_auth.createUser("otsakir","diskolo")
-	for k,v in pairs(web.GET) do
-		print (k.." = "..tostring(v))
-	end
-end
-
-function post(web)
-	for k,v in pairs(web.POST) do
-		print (k.." = "..tostring(v))
-	end
-end
-
-function rawpost(web)
-	print (web.POST.post_data)
-end
-
-
-function say(web, name)
-	return render_say(web, name)
-end
-
-
 function send(web)
 	print ("sending mail")
 	print (web.POST.post_data)
@@ -77,7 +54,7 @@ function signin(web)
 	local data = cjson.decode(web.POST.post_data)
 	if bmale_auth.authenticateUser(data.username, data.password) then
 		local newUuid = uuid()
-		web:set_cookie("bmaleticket",newUuid)
+		web:set_cookie("bmaleticket",{value = newUuid, path = "/"})
 		local docHandler = luchia.document:new("sessions")
 		local couchResp = docHandler:create({username = data.username},newUuid)
 		
@@ -87,7 +64,7 @@ function signin(web)
 			return cjson.encode({status = "ok"})
 		else
 			-- log the error 
-			print("error creating document")
+			print("error creating session document")
 			return cjson.encode({status = "error", message = "internal server error"})
 		end
 	else	
@@ -98,26 +75,25 @@ end
 
 function signout(web)
 		local webCookie = bmale_utils.extractTicketFromHeader( web.vars.HTTP_COOKIE)
-		local docHandler = luchia.document:new("sessions")
-		local session = docHandler:retrieve(webCookie)
-		
-		if session then
-			print( stdstring.prettytostring(session))
-			docHandler:delete(session._id, session._rev)
-			return cjson.encode({status = "ok"})
-		else
-			return cjson.encode({status = "error"})
+		if webCookie then
+			-- clear the cookie from the user's browser
+			web:set_cookie("bmaleticket",{value = "", path="/", expires=0})
+			-- clear the session record
+			local docHandler = luchia.document:new("sessions")
+			local session = docHandler:retrieve(webCookie)
+			
+			if session then
+				print( stdstring.prettytostring(session))
+				docHandler:delete(session._id, session._rev)
+				return cjson.encode({status = "ok"})
+			else
+				return cjson.encode({status = "error"})
+			end
 		end
 end
 
 
--- Builds the application's dispatch table, you can
--- pass multiple patterns, and any captures get passed to
--- the controller
-
-bmale:dispatch_get(get, "/get")
-bmale:dispatch_post(post, "/post")
-bmale:dispatch_post(rawpost, "/rawpost")
+-- build dispatch table
 
 bmale:dispatch_post(send, "/send")
 bmale:dispatch_put(createUser, "/users")
@@ -125,9 +101,6 @@ bmale:dispatch_post(signin, "/signin")
 bmale:dispatch_get(signout, "/signout")
 
 -- bmale:dispatch_static("index.html","/")
-
--- hello:dispatch_get(say, "/say/(%a+)")
-
 
 orbit.htmlify(bmale, "render_.+")
 

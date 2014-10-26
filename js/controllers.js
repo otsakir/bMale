@@ -42,3 +42,21 @@ angular.module("bMale").controller("signinCtrl", function signinCtrl($scope,$htt
 	}
 });
 
+angular.module("bMale").controller("desktopCtrl", function desktopCtrl($scope,$http) {
+	$scope.signOutClicked = function () {
+		$http({url:"bmale.lua/signout", method:"GET"})
+		.success(function (data) {
+			console.log("signed out");
+		})
+		.error(function () {
+			console.log("error signing out");
+		});
+	}
+});
+
+angular.module("bMale").controller("topLevelCtrl", function toplLevelCtrl($scope, $cookies) {
+	console.log("in topLevelCtrl");
+	$scope.cookies = $cookies;
+});
+
+
