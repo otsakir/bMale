@@ -25,3 +25,127 @@ and places this bundle in the outboxQueue couch db.
 
 Also, the agent upon receiving a valid message it returns the couch doc it to the client.
 
+
+***
+
+Scenario: (A)lice sends a message to her friends, (B)ob and (M)ax.
+
+	1. System processes Alice's message and stores a message object in the localMessages. 
+	   - an id is generated for this message
+	   - message properties include the "creator" that is Alice
+	   - message isn't supposed to change after time
+	2. A new submission job is created in the 'submissions' db. A submission represents sending
+	   a message to its destination(s). A submission job has the following properties:
+	   - Has a reference to a message (message id)
+	   - Has a status
+	   - Contains many subtasks, one for each destination.
+    3. 
+    
+ 
+Scenario: Alice and Bob have an account in the "earth" bmale server. Max has an account in "moon". Zodiac has an account in Zeus
+
+1. "Alice sends a message to her friend Bob. Both Alice and Bob have an account in the same server"
+
+The following message is added in 'messages' db:
+{
+	from = "alice",
+	local = true,
+	origin = nil,
+	destinations = ["bob"]
+}
+
+Alice can see her message in the 'send' directory using this query:
+
+	"fetch all messages with local = true and from = 'alice'"
+	
+Bob can see Alice's message in his inbox directory using this query:
+
+	"fetch all messages with destinations.contains["bob"]
+	
+2. "Max wants to send a message to alice#earth, bob#earth" and zodiac#zeus
+
+He starts editing the message. The message is saved as draft initially:
+{
+	type = "message",
+	messageType = "draft",
+	from = "max",
+	destinations = ["alice#earth","bob#earth","zodiac#zeus"],
+	content = {
+		subject = "Hello guys",
+		body = "This is Max",
+		? destinationsQuote = "alice#earth, bob#earth, zodiac#zeus"
+	}
+}
+
+At some time he decides that his message is ready to send so he presses "send".
+The message is updated one final time with messageType = "normal".
+The following message is 'sent':
+{
+	type = "message",
+	message = {
+		messageType = "normal"
+		from = "max",
+		local = "true" ?
+		destinations = ["alice#earth","bob#earth","zodiac#zeus"]
+		content = {
+			title = "Hello guys",
+			body = "This is Max",
+			destinationsQuote = "alice#earth, bob#earth, zodiac#zeus"
+		}
+	}
+}
+
+When a message is 'sent' the 'submissionTasks' property is added to the message document:
+{
+	...
++ 	submissionTasks = [
+		{type = "sendremote", destinations = ["alice#earth", "bob#earth"]}, 
+		{type = "sendremote", destinations = ["zodiac#zeus"]}
+	]
+}
+
+A design view will return the pending tasks. Here is its map function:
+function (doc) {
+	for (var task in doc.submissionTasks) {
+		map(doc._id, {task = task, content = doc.content})
+	}
+}
+We need the task and the internal user-entered content in order to do our job
+
+Moon's batch submission daemon periodically runs the queries to the view above and fetches the 
+first submission task that will send our message to earth. It spawns new threads to do the actual
+submission and waits for a result. 
+
+So, each task is spawned like this MessagerThread.run(messageId, submissionTask). When the thread 
+finishes, it passes back the messageId and a status code. The parent thread gets the id, loads the
+document, updates it (removes the submission task or sets a status property to 'sent', 'failed' etc.)
+and saves it. We need to have a single point where these documents are updated in order to avoid 
+conflicts when multiple threads are involved.
+
+Moon's messager processes the submission task. He transmits the pending message to earth. Here is what is transmitted:
+{
+	from = "max",
+	destinations = ["alice"]
+	content = {...}
+}
+Earth, knows that the messager comes from moon. She will append the "#moon" suffix to message's 'from' property.
+
+Earth's reception accepts the message and processes it. The following messsage is added to earth's 'messages' db:
+{
+	from = "max#moon",
+	local = "false",
+	+ origin = "moon",
+	destinations = ["alice","bob"]
+	content = {...}
+}
+
+Alice checks her inbox. The following query is executed:
+
+	"fetch all messages with destinations.contains["alice"]
+	
+
+
+
+
+
+	

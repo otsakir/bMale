@@ -1,5 +1,5 @@
-<h3>Create new message</h3>
-<div ng-controller="composeCtrl">
+<h3>Edit draft message</h3>
+<div>
 	<form novalidate>
 		<div class="form-group">
 			<label>To</label>
@@ -13,7 +13,7 @@
 			<label>Message body</label>
 			<textarea ng-model="draft.body" class="form-control"></textarea>
 		</div>
-		<button ng-click="sendClicked(draft)" class="btn btn-primary">Send</button>
-		<button ng-click="saveClicked(draft)" class="btn btn-primary">Save</button>
+		<button ng-click="saveClicked(draft, draft.id, draft.revision)" class="btn btn-primary">Save</button>
+		<button ng-click="closeDraft()" class="btn btn-primary">Close</button>
 	</form>
 </div>

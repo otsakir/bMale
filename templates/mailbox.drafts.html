@@ -1,1 +1,7 @@
-<div>mailbox.drafts view</div>
+<div>mailbox.drafts view
+	<div ng-repeat="draft in drafts" class="row" >
+		<div class="col-md-3">{{draft.from}}</div>
+		<div class="col-md-9"><a href="#/mailbox/drafts/{{draft.id}}/{{draft.revision}}">{{draft.title}}</a></div>
+	</div>
+	
+</div>

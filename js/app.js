@@ -35,6 +35,19 @@ angular.module("bMale")
 		})
 		.state("desktop.mailbox.drafts", {
 			url:"/drafts",
-			templateUrl:"templates/mailbox.drafts.html"
-		});				
+			templateUrl:"templates/mailbox.drafts.html",
+			controller:"draftsCtrl",
+			resolve: {
+				drafts: function (messageService) {return messageService.getDrafts()}
+			}
+		})
+		.state("desktop.mailbox.editdraft", {
+			url:"/drafts/:messageId/:revision",
+			templateUrl:"templates/mailbox.drafts.edit.html",
+			controller:"editDraftCtrl",
+			resolve: {
+				draft: function (messageService, $stateParams) {return messageService.getMessage($stateParams.messageId, $stateParams.revision)}
+			}
+		})		
+		;				
 });
