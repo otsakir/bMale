@@ -105,3 +105,15 @@ function storeMessage(message, id)
 	end
 end
 
+-- returns 1 if successfull or nil in case of error
+function removeMessage(id, revision) 
+	assert( type(id)=="string" and type(revision)=="string" )
+	local url = bmale.config.storageUrl.."/messages/"..id.."?rev="..revision
+print("url: "..url)
+	local r = http.request({
+		url = url,
+		method = "DELETE"
+	})
+	return r
+end
+

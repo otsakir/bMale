@@ -81,6 +81,21 @@ angular.module("bMale").service("messageService", function ($http, $q) {
 		return deferred.promise;
 	}
 	
+	service.removeDraft = function(id,revision) {
+		var deferred = $q.defer();
+		$http({url:"bmale.lua/drafts/"+id+"/"+revision, method:"DELETE"})
+		.success(function (data) {
+			if (data.status == 'ok')
+				deferred.resolve();
+			else
+				deferred.reject("application error");
+		})
+		.error(function () {
+			deferred.reject("http error");
+		});
+		return deferred.promise;		
+	}
+	
 	return service;
 });
 
@@ -141,6 +156,14 @@ angular.module("bMale").controller("editDraftCtrl", function editDraftCtrl($scop
 		messageService.updateDraft(message,id,revision)
 		.then(function (response) {
 			console.log(response);
+			$location.path("#/mailbox/inbox");
+		});
+	}
+	
+	$scope.discardClicked = function (id,revision) {
+		messageService.removeDraft(id,revision) 
+		.then(function (response) {
+			console.log("draft "+id+" removed");
 			$location.path("#/mailbox/inbox");
 		});
 	}

@@ -158,6 +158,22 @@ print("messageDto: " .. bmale.utils.tostring(messageDto))
 	end
 end
 
+function remove_draft_message(web,id,revision)
+print("in remove_draft_message")
+	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
+	if status == false then 
+		return unauthorized(web)	
+	elseif status == nil then
+		return orbit.server_error(web, "")
+	end
+	
+	if queries.removeMessage(id,revision) then
+		return cjson.encode({status="ok"})
+	else
+		return cjson.encode({status="error"})
+	end
+end
+
 
 function send(web)
 	-- check authenticated
@@ -259,6 +275,7 @@ bmale:dispatch_get(get_draft_message, "/drafts/(%w+)/([%w-]+)")
 
 bmale:dispatch_post(save_draft_message, "/drafts")
 bmale:dispatch_put(save_draft_message, "/drafts/(%w+)/([%w-]+)/save")
+bmale:dispatch_delete(remove_draft_message, "/drafts/(%w+)/([%w-]+)")
 
 -- bmale:dispatch_static("index.html","/")
 
