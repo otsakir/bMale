@@ -22,7 +22,7 @@ angular.module("bMale").service("messageService", function ($http, $q) {
 	
 	service.getMessage = function(id,revision) {
 		var deferred = $q.defer();
-		$http({url:"bmale.lua/drafts/"+id+"/"+revision, method:"GET"})
+		$http({url:"bmale.lua/drafts/"+id, method:"GET"})
 		.success(function (data) { 
 			console.log("retrieved message");
 			if (data.status == "ok")
@@ -94,6 +94,21 @@ angular.module("bMale").service("messageService", function ($http, $q) {
 			deferred.reject("http error");
 		});
 		return deferred.promise;		
+	}
+	
+	service.sendMessage = function(id,revision) {
+		var deferred = $q.defer();
+		$http({url:"bmale.lua/messages/"+id+"/send", method:"PUT"})
+		.success(function (data) {
+			if (data.status == 'ok')
+				deferred.resolve();
+			else
+				deferred.reject("application error");
+		})
+		.error(function () {
+			deferred.reject("http error");
+		});
+		return deferred.promise;			
 	}
 	
 	return service;
@@ -169,7 +184,15 @@ angular.module("bMale").controller("editDraftCtrl", function editDraftCtrl($scop
 	}
 	
 	$scope.closeDraft = function() {
-		$location.path("mailbox/inbox");
+		$location.path("#/mailbox/inbox");
+	}
+	
+	$scope.sendMessage = function(id, revision) {
+		messageService.sendMessage(id,revision)
+		.then(function (response) {
+				console.log("message sent");
+				$location.path("#/mailbox/inbox");
+		});
 	}
 });
 

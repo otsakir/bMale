@@ -69,19 +69,25 @@ function fetchUserDrafts(username)
 	end
 end
 
+function fetchUserInbox(username)
+
+end
+
 -- TODO search for messages belonging to this user only
-function fetchMessage(username, id, revision)
+-- Fetches a message and returns it as is
+function fetchMessage(id, username)
 	assert(id, "no message id specified")
 	local b,c,h = http.request(bmale.config.storageUrl.."/messages/"..id)
 	if (c==200) then
 		local body = cjson.decode(b)
-		local message = bmale.models.MessageDto.fromMessage(body)
-		return message
+		return body
+		--local message = bmale.models.MessageDto.fromMessage(body)
+		--return message
 	end	
 end
 
 -- returns couch's response or nil in case of http error
-function storeMessage(message, id)
+function storeMessage(id, message)
 	local message_json = cjson.encode(message)
 	local url = bmale.config.storageUrl.."/messages/"..(id and id or "")
 	local response_table = {}

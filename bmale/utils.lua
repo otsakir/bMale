@@ -13,3 +13,7 @@ end
 function extractTicketFromHeader( header )
 	return header:match("bmaleticket=([^;]+);?")
 end
+
+function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end

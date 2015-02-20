@@ -46,8 +46,7 @@ function Message.new(p)
 	local d = Message.default()
 	if (p) then
 		for key in pairs(p) do
-			d[key] = p[key]
-			
+			d[key] = p[key]			
 		end
 	end
 	return d
@@ -84,3 +83,18 @@ function MessageDto.fromMessage(m)
 	}
 	return o;
 end
+
+SubmissionTask = {}
+function SubmissionTask.default()
+	local o = {
+		type = "sendremote",
+		--destinations = {}	
+	}
+	return o
+end
+
+--[[ 	submissionTasks = [
+		{type = "sendremote", destinations = ["alice#earth", "bob#earth"]}, 
+		{type = "sendremote", destinations = ["zodiac#zeus"]}
+	]
+--]]

@@ -42,11 +42,11 @@ angular.module("bMale")
 			}
 		})
 		.state("desktop.mailbox.editdraft", {
-			url:"/drafts/:messageId/:revision",
+			url:"/drafts/:messageId",
 			templateUrl:"templates/mailbox.drafts.edit.html",
 			controller:"editDraftCtrl",
 			resolve: {
-				draft: function (messageService, $stateParams) {return messageService.getMessage($stateParams.messageId, $stateParams.revision)}
+				draft: function (messageService, $stateParams) {return messageService.getMessage($stateParams.messageId)}
 			}
 		})		
 		;				

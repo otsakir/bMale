@@ -11,6 +11,7 @@ local uuid = require "uuid"
 require "bmale.utils"
 require "bmale.models"
 require "bmale.queries"
+require "bmale.core"
 
 module("bmale", package.seeall, orbit.new)
 
@@ -22,52 +23,6 @@ function unauthorized(web)
 	return cjson.encode({status = "error", message = "Unauthorized"})
 end
 
--- *** Controller HTTP services ***
-
-function create_document(db, data)
-	local docHandler = luchia.document:new(db)
-	local couchResp = docHandler:create(data)
-	if docHandler:response_ok(couchResp) then
-		return couchResp.id, couchResp.rev
-	else
-		return nil
-	end	
-end
-
-function update_document(db, data, id, revid)
-	local docHandler = luchia.document:new(db)
-	local couchResp = docHandler:update(data, id, revid)
-	if docHandler:response_ok(couchResp) then
-		return couchResp.id, couchResp.rev
-	else
-		return nil
-	end	
-end
-
-
-
---[[
-function update_draft(web)
-	-- check authenticated
-	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
-	if status == false then 
-		return unauthorized(web)	
-	elseif status == nil then
-		return orbit.server_error(web, "")
-	end
-	
-	print("updating draft");
-	local data = cjson.decode(web.POST.post_data)
-	data.message.messageType = "draft"
-	
-	local docid, revid = update_document("messages", data.message, data.id, data.revid)
-	if docid then
-		return cjson.encode({status = "ok", payload = {id = docid, revid = revid}})
-	else
-		return cjson.encode({status = "error", message = "cannot update draft"})
-	end
-end
---]]
 
 function list_drafts(web)
 	print ("in list_drafts")
@@ -86,10 +41,9 @@ function list_drafts(web)
 	return jsonResponse
 end
 
-function get_draft_message(web, id, revision)
+function get_draft_message(web, id)
 	print("in get_draft_message")
 	print("id "..id)
-	print("revision "..revision)
 	-- check authenticated
 	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
 	if status == false then 
@@ -99,31 +53,11 @@ function get_draft_message(web, id, revision)
 	end
 	--]]
 	
-	local draftMessage = bmale.queries.fetchMessage(user.username, id, revision)
+	local draftMessage = bmale.models.MessageDto.fromMessage( bmale.queries.fetchMessage(id, user.username) )
 	local response = {status = "ok", payload = draftMessage}
 	local jsonResponse = cjson.encode(response)
 	return jsonResponse
 end
---[[
-function create_draft(web)
-	-- check authenticated
-	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
-	if status == false then 
-		return unauthorized(web)	
-	elseif status == nil then
-		return orbit.server_error(web, "")
-	end
-	
-	draft_message = cjson.decode(web.POST.post_data)
-	draft_message.messageType = "draft"
-	local docid, revid = create_document("messages", draft_message)
-	if docid then
-		return cjson.encode({status = "ok", payload = {id = docid, revid = revid}})
-	else
-		return cjson.encode({status = "error", message = "cannot create draft"})
-	end
-end
---]]
 
 function save_draft_message(web,id,revision)
 --print(bmale.utils.tostring(web))
@@ -150,7 +84,7 @@ print("messageDto: " .. bmale.utils.tostring(messageDto))
 	message._rev = revision
 	message.message.messageType = "draft"
 	
-	local dbResponse = queries.storeMessage(message,id)
+	local dbResponse = queries.storeMessage(id, message)
 	if ( dbResponse and dbResponse.ok ) then
 		return cjson.encode( {status = "ok", payload = {id = dbResponse.id, revision = dbResponse.rev}} )
 	else
@@ -174,9 +108,8 @@ print("in remove_draft_message")
 	end
 end
 
-
-function send(web)
-	-- check authenticated
+function send_message(web,id)
+	print("in send_message "..id)
 	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
 	if status == false then 
 		return unauthorized(web)	
@@ -184,28 +117,7 @@ function send(web)
 		return orbit.server_error(web, "")
 	end
 	
-	-- decode json message
-	local decodedMessage = cjson.decode(web.POST.post_data)
-	print("sending to "..decodedMessage.to)
-
-	-- prepare an outgoing message for each destination
-	local outgoingMessage = { 
-		from = user.username,
-		destination = decodedMessage.to,
-		message = decodedMessage.message
-	}
-
-	-- put the message in the outbox_queue
-	local docHandler = luchia.document:new("outbox_queue")
-	local couchResp = docHandler:create(outgoingMessage)
-	if docHandler:response_ok(couchResp) then
-		print("document created successfully: "..tostring(couchResp.id))
-		local response = {status = "ok", payload = {id = couchResp.id}}
-		local jsonResponse = cjson.encode(response)
-		return jsonResponse
-	else
-		print("error creating document")
-	end	
+	core.sendMessage(id,user)
 end
 
 function createUser(web)
@@ -264,18 +176,19 @@ end
 
 -- build dispatch table
 
-bmale:dispatch_post(send, "/send")
+-- bmale:dispatch_post(send, "/send")
 bmale:dispatch_put(createUser, "/users")
 bmale:dispatch_post(signin, "/signin")
 bmale:dispatch_get(signout, "/signout")
 
-bmale:dispatch_get(list_drafts, "/drafts")
 -- bmale:dispatch_post(update_draft, "/drafts")
-bmale:dispatch_get(get_draft_message, "/drafts/(%w+)/([%w-]+)")
+bmale:dispatch_get(get_draft_message, "/drafts/(%w+)")
 
+bmale:dispatch_get(list_drafts, "/drafts")
 bmale:dispatch_post(save_draft_message, "/drafts")
 bmale:dispatch_put(save_draft_message, "/drafts/(%w+)/([%w-]+)/save")
 bmale:dispatch_delete(remove_draft_message, "/drafts/(%w+)/([%w-]+)")
+bmale:dispatch_put(send_message, "/messages/(%w+)/send")
 
 -- bmale:dispatch_static("index.html","/")
 
