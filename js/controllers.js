@@ -2,8 +2,24 @@
 angular.module("bMale").service("messageService", function ($http, $q) {
 	var service = {};
 	
+	service.getInbox = function() {
+		var deferred = $q.defer();
+		$http({url:"bmale.lua/inbox", method:"GET"})
+		.success(function (data) { 
+			console.log("retrieved inbox");
+			if (data.status == "ok")
+				deferred.resolve(data.payload);
+			else
+				deferred.reject(data.message);
+		})
+		.error(function (data,status) {
+			console.log("http error while getting inbox")
+			deferred.reject();
+		});
+		return deferred.promise;
+	}
 	
-	service.getDrafts = function(user) {
+	service.getDrafts = function() {
 		var deferred = $q.defer();
 		$http({url:"bmale.lua/drafts", method:"GET"})
 		.success(function (data) { 
@@ -194,6 +210,10 @@ angular.module("bMale").controller("editDraftCtrl", function editDraftCtrl($scop
 				$location.path("#/mailbox/inbox");
 		});
 	}
+});
+
+angular.module("bMale").controller("inboxCtrl", function inboxCtrl($scope,inboxMessages) {
+	$scope.inboxMessages = inboxMessages;
 });
 
 angular.module("bMale").controller("desktopCtrl", function desktopCtrl($scope,$http) {

@@ -81,7 +81,18 @@ function MessageDto.fromMessage(m)
 		typedDestinations = m.message.content.destinationsQuote,
 		from = m.message.from
 	}
-	return o;
+	return o
+end
+function MessageDto.fromMessageContent(c)
+	local o = {
+		id = c.id,
+		-- revision = m._rev,
+		title = c.title,
+		body = c.body,
+		typedDestinations = c.destinationsQuote,
+		from = c.from		
+	}
+	return o
 end
 
 SubmissionTask = {}

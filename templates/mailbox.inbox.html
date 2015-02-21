@@ -1,1 +1,6 @@
-<div>mailbox.inbox view</div>
+<div>mailbox.inbox view
+	{{inboxMessages}}
+	<div ng-repeat="message in inboxMessages">
+		{{message.title}}
+	</div>
+</div>

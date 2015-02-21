@@ -67,18 +67,21 @@ Bob can see Alice's message in his inbox directory using this query:
 He starts editing the message. The message is saved as draft initially:
 {
 	type = "message",
-	messageType = "draft",
-	from = "max",
-	destinations = ["alice#earth","bob#earth","zodiac#zeus"],
-	content = {
-		subject = "Hello guys",
-		body = "This is Max",
-		? destinationsQuote = "alice#earth, bob#earth, zodiac#zeus"
+	message = {
+		messageType = "draft",
+		from = "max",
+		destinations = ["alice#earth","bob#earth","zodiac#zeus"],
+		content = {
+			subject = "Hello guys",
+			body = "This is Max",
+			? destinationsQuote = "alice#earth, bob#earth, zodiac#zeus"
+		}
 	}
 }
 
 At some time he decides that his message is ready to send so he presses "send".
-The message is updated one final time with messageType = "normal".
+The message is updated one final time with messageType = "normal". Also, the "from"
+property of the message content is set.
 The following message is 'sent':
 {
 	type = "message",
@@ -86,11 +89,13 @@ The following message is 'sent':
 		messageType = "normal"
 		from = "max",
 		local = "true" ?
-		destinations = ["alice#earth","bob#earth","zodiac#zeus"]
+		destinations = ["local1","local2"]
+		//destinations = ["alice#earth","bob#earth","zodiac#zeus"]
 		content = {
 			title = "Hello guys",
 			body = "This is Max",
-			destinationsQuote = "alice#earth, bob#earth, zodiac#zeus"
+			destinationsQuote = "alice#earth, bob#earth, zodiac#zeus",
+			from = "max"
 		}
 	}
 }
@@ -142,7 +147,65 @@ Earth's reception accepts the message and processes it. The following messsage i
 Alice checks her inbox. The following query is executed:
 
 	"fetch all messages with destinations.contains["alice"]
-	
+
+
+Additional notes
+
+- Each user belongs to a logical entity, the clan. It's like having an account on an email provider like google or yahoo.
+- Each clan has a name. In our example 'earth' and 'zeus' are clan names. We could map clan names directly to domain names 
+  but further investigation should be done on this topic.
+- The user needs to trust his clan operator. Doesn't he? 
+
+Universes
+
+- The name of a clan is registered inside a 'universe'. A universe is a namespace supported by a server where clan names are registered.
+  The internet and the dns could be a universe, only bigger. We call these servers CNS (from clan name server)
+- A universe works like a registry. It keeps mappings of clan names to ways-to-find (address) the clan. Clan contact the universe to 
+  publish their way-to-find or query other clans' way-to-find.
+- A universe has a fixed way-to-find that is well-known to clans. The universe is not identified by this way-to-find however. It could 
+  change its way-to-find maintaining its identifier. As long as clans can somehow find it and re-register the universe can function
+  on a different way-to-find (address).
+- A universe should not publish the list of mappings it keeps.
+- A wof (way-of-find) is a named function that returns an (IP) address (or something the client can use to contact a peer) with a hidden 
+  implementation. 
+  
+Clan name server - CNS
+
+- A CNS keeps mappings of the following form:
+
+  clan name -> wof
+  
+  A wof is a dynamic expression that returns the IP address (or maybe a root resource) of the clan. The expression
+  is a lua expression that can be as simple as a string like "http://w.x.y.z/clan/root/resource". Or it could be
+  more complex involving function calls as resolve(other CNS, clan name) or other predefined functions offered by this
+  CNS.
+  
+  Each CNS should implement a number of predefined functions such as 'resolve(cns,clan)'. A wof can use any of these
+  functions in order to produce an IP address. 
+ 
+Naming system
+
+  The naming system should be dynamic. A clan should be able to register a new wof any time it sees fit. The idea is
+  that a query for a clan returns an IP and then a second request is ran against  this IP to get a the clan's public
+  key. The clan's public key is chalenged and if verified it can be stored in the requesting entity for future 
+  reference.
+  
+  If a clan wishes to change its wof it should first start responding with 'moved' to arriving requests. Then it
+  should update the CNS with its new wof. A direct request will get the 'moved' and will try to contact the CNS to
+  get the new IP. It will then contact the new IP and challenge the public key. If it verifies the new IP is stored 
+  and the actual request is made.
+  
+Other ideas
+
+  A clan can make sure a CNS reports its correct IP by making a query for itself on behalf of another CNS. So, a CNS
+  sort of executes name resolving scripts. 
+
+  
+ 
+Test Case
+
+- 
+
 
 
 

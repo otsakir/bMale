@@ -53,6 +53,20 @@ function fetchUserMessages(username)
 		return drafts
 	end
 end
+-- retrieves the messages received by a user
+function fetchInboxMessages(username)
+	local b,c,h = http.request(bmale.config.storageUrl.."/messages/_design/messages/_view/inboxByDestination?key=\""..username.."\"")
+	if (c==200) then
+		local body = cjson.decode(b)
+		local messages = {}
+		-- print("total rows: "..body.total_rows)
+		for rawindex = 1,#body.rows do
+			local messageDto = bmale.models.MessageDto.fromMessageContent(body.rows[rawindex].value)
+			messages[rawindex] = messageDto
+		end
+		return messages
+	end	
+end
 
 function fetchUserDrafts(username)
 	assert(username and type(username)=="string", "fetchUserDrafts(): bad username")

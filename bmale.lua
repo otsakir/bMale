@@ -41,6 +41,23 @@ function list_drafts(web)
 	return jsonResponse
 end
 
+function get_inbox(web)
+	print ("in get_inbox")
+	-- check authenticated
+	local status,user = bmale_auth.getLoggedUser( bmale.utils.extractTicketFromHeader( web.vars.HTTP_COOKIE ) )
+	if status == false then 
+		return unauthorized(web)	
+	elseif status == nil then
+		return orbit.server_error(web, "")
+	end
+	--]]
+	
+	local inboxMessages = bmale.queries.fetchInboxMessages(user.username);
+	local response = {status = "ok", payload = inboxMessages}
+	local jsonResponse = cjson.encode(response)
+	return jsonResponse		
+end
+
 function get_draft_message(web, id)
 	print("in get_draft_message")
 	print("id "..id)
@@ -188,8 +205,10 @@ bmale:dispatch_get(list_drafts, "/drafts")
 bmale:dispatch_post(save_draft_message, "/drafts")
 bmale:dispatch_put(save_draft_message, "/drafts/(%w+)/([%w-]+)/save")
 bmale:dispatch_delete(remove_draft_message, "/drafts/(%w+)/([%w-]+)")
+
 bmale:dispatch_put(send_message, "/messages/(%w+)/send")
 
+bmale:dispatch_get(get_inbox, "/inbox")
 -- bmale:dispatch_static("index.html","/")
 
 orbit.htmlify(bmale, "render_.+")

@@ -7,6 +7,7 @@ function sendMessage(id, sender)
 	print("sending message for user "..bmale.utils.tostring(sender))
 	local document = bmale.queries.fetchMessage(id,sender)
 	document.message.messageType = "normal"
+	document.message.content.from = sender.username
 	
 	-- parse message.content.destinationsQuote  and populate message.destinations
 	local destQuote = document.message.content.destinationsQuote
@@ -33,5 +34,5 @@ function sendMessage(id, sender)
 	print("local destinations "..bmale.utils.tostring(document.message.destinations) )
 	print("submission tasks "..bmale.utils.tostring(document.message.submissionTasks) )
 
-	-- return bmale.queries.storeMessage(id,document)
+	return bmale.queries.storeMessage(id,document)
 end

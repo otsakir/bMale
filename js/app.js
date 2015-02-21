@@ -27,7 +27,11 @@ angular.module("bMale")
 		})
 		.state("desktop.mailbox.inbox", {
 			url:"/inbox",
-			templateUrl:"templates/mailbox.inbox.html"
+			templateUrl:"templates/mailbox.inbox.html",
+			controller:"inboxCtrl",
+			resolve: {
+				inboxMessages: function(messageService) { return messageService.getInbox()}
+			}
 		})	
 		.state("desktop.mailbox.sent", {
 			url:"/sent",
