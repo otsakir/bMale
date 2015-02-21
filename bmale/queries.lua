@@ -61,7 +61,7 @@ function fetchInboxMessages(username)
 		local messages = {}
 		-- print("total rows: "..body.total_rows)
 		for rawindex = 1,#body.rows do
-			local messageDto = bmale.models.MessageDto.fromMessageContent(body.rows[rawindex].value)
+			local messageDto = bmale.models.MessageDto.fromMessageContent(body.rows[rawindex].value, body.rows[rawindex].id)
 			messages[rawindex] = messageDto
 		end
 		return messages

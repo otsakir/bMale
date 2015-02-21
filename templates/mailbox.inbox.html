@@ -1,6 +1,6 @@
 <div>mailbox.inbox view
 	{{inboxMessages}}
 	<div ng-repeat="message in inboxMessages">
-		{{message.title}}
+		<a href="#/mailbox/view/{{message.id}}">{{message.title}}</a>
 	</div>
 </div>

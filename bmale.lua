@@ -53,6 +53,7 @@ function get_inbox(web)
 	--]]
 	
 	local inboxMessages = bmale.queries.fetchInboxMessages(user.username);
+	print (bmale.utils.tostring(inboxMessages) )
 	local response = {status = "ok", payload = inboxMessages}
 	local jsonResponse = cjson.encode(response)
 	return jsonResponse		

@@ -25,6 +25,14 @@ angular.module("bMale")
 			templateUrl:"templates/mailbox.compose.html",
 			controller:"composeCtrl"
 		})
+		.state("desktop.mailbox.view", {
+			url:"/view/:messageId",
+			templateUrl:"templates/mailbox.view.html",
+			controller:"viewMessageCtrl",
+			resolve: {
+				message: function (messageService, $stateParams) {return messageService.getMessage($stateParams.messageId)}
+			}
+		})		
 		.state("desktop.mailbox.inbox", {
 			url:"/inbox",
 			templateUrl:"templates/mailbox.inbox.html",

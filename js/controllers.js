@@ -158,6 +158,11 @@ angular.module("bMale").controller("composeCtrl", function composeCtrl($scope,$h
 	
 });
 
+angular.module("bMale").controller("viewMessageCtrl", function viewMessageCtrl($scope, message) {
+	$scope.message = message;
+});
+
+
 
 angular.module("bMale").controller("signinCtrl", function signinCtrl($scope,$http) {
 	$scope.signinForm = {username:"", password:""};

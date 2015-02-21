@@ -83,9 +83,9 @@ function MessageDto.fromMessage(m)
 	}
 	return o
 end
-function MessageDto.fromMessageContent(c)
+function MessageDto.fromMessageContent(c,id)
 	local o = {
-		id = c.id,
+		id = id,
 		-- revision = m._rev,
 		title = c.title,
 		body = c.body,
