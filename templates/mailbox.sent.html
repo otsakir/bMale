@@ -1,1 +1,6 @@
-<div>mailbox.sent view</div>
+<div>mailbox.sent view
+	{{sentMessages}}
+	<div ng-repeat="message in sentMessages">
+		<a href="#/mailbox/view/{{message.id}}">{{message.title}}</a>
+	</div>
+</div>

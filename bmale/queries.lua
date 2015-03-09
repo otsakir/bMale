@@ -55,7 +55,21 @@ function fetchUserMessages(username)
 end
 -- retrieves the messages received by a user
 function fetchInboxMessages(username)
-	local b,c,h = http.request(bmale.config.storageUrl.."/messages/_design/messages/_view/inboxByDestination?key=\""..username.."\"")
+	local b,c,h = http.request(bmale.config.storageUrl.."/messages/_design/messages/_view/inbox?key=\""..username.."\"")
+	if (c==200) then
+		local body = cjson.decode(b)
+		local messages = {}
+		-- print("total rows: "..body.total_rows)
+		for rawindex = 1,#body.rows do
+			local messageDto = bmale.models.MessageDto.fromMessageContent(body.rows[rawindex].value, body.rows[rawindex].id)
+			messages[rawindex] = messageDto
+		end
+		return messages
+	end	
+end
+
+function fetchSentMessages(username)
+	local b,c,h = http.request(bmale.config.storageUrl.."/messages/_design/messages/_view/sent?key=\""..username.."\"")
 	if (c==200) then
 		local body = cjson.decode(b)
 		local messages = {}

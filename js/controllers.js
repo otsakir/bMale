@@ -19,6 +19,23 @@ angular.module("bMale").service("messageService", function ($http, $q) {
 		return deferred.promise;
 	}
 	
+	service.getSent = function() {
+		var deferred = $q.defer();
+		$http({url:"bmale.lua/sent", method:"GET"})
+		.success(function (data) { 
+			console.log("retrieved sent");
+			if (data.status == "ok")
+				deferred.resolve(data.payload);
+			else
+				deferred.reject(data.message);
+		})
+		.error(function (data,status) {
+			console.log("http error while getting sent messages")
+			deferred.reject();
+		});
+		return deferred.promise;
+	}	
+	
 	service.getDrafts = function() {
 		var deferred = $q.defer();
 		$http({url:"bmale.lua/drafts", method:"GET"})
@@ -219,6 +236,10 @@ angular.module("bMale").controller("editDraftCtrl", function editDraftCtrl($scop
 
 angular.module("bMale").controller("inboxCtrl", function inboxCtrl($scope,inboxMessages) {
 	$scope.inboxMessages = inboxMessages;
+});
+
+angular.module("bMale").controller("sentCtrl", function inboxCtrl($scope,sentMessages) {
+	$scope.sentMessages = sentMessages;
 });
 
 angular.module("bMale").controller("desktopCtrl", function desktopCtrl($scope,$http) {

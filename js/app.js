@@ -43,7 +43,11 @@ angular.module("bMale")
 		})	
 		.state("desktop.mailbox.sent", {
 			url:"/sent",
-			templateUrl:"templates/mailbox.sent.html"
+			templateUrl:"templates/mailbox.sent.html",
+			controller:"sentCtrl",
+			resolve: {
+				sentMessages: function(messageService) { return messageService.getSent()}
+			}			
 		})
 		.state("desktop.mailbox.drafts", {
 			url:"/drafts",

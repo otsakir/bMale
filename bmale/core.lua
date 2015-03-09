@@ -6,7 +6,7 @@ require "bmale.utils"
 function sendMessage(id, sender)
 	print("sending message for user "..bmale.utils.tostring(sender))
 	local document = bmale.queries.fetchMessage(id,sender)
-	document.message.messageType = "normal"
+	document.message.messageType = "sent"
 	document.message.content.from = sender.username
 	
 	-- parse message.content.destinationsQuote  and populate message.destinations
@@ -18,8 +18,16 @@ function sendMessage(id, sender)
 		dest = bmale.utils.trim(dest)
 		local matched,name,addressType,domain
 		matched,_,name = string.find(dest,"^(%a[%w.]*)$")
+		print("dest: "..name)
+		print("matched: "..matched)		
 		if (matched) then
-			table.insert(document.message.destinations,name)
+			-- This is a locally delivered message. We will need to create local copies for each destination
+			local messageCopy = bmale.models.Message.copy(document)
+			messageCopy.message.to = name
+			messageCopy.message.from = sender.username
+			print("message copy "..bmale.utils.tostring(messageCopy))
+			bmale.queries.storeMessage(nil,messageCopy)
+			--table.insert(document.message.destinations,name)
 		else
 			matched,_,name,addressType,domain = string.find(dest, "^(%a[%w.]*)([@#]?)(%a[%w.]*)$")
 			if (matched) then

@@ -59,6 +59,11 @@ function Message.fromMessageDto(dto)
 	o.message.content.destinationsQuote = dto.typedDestinations
 	return o
 end
+function Message.copy(from)
+	local o = Message.default()
+	o.message.content = from.message.content
+	return o
+end
 
 
 MessageDto = {}
